@@ -1,7 +1,7 @@
 import argparse
 
 # validation set path
-DATA_DIRECTORY = '/path/to/Dark_Zurich_val_anon/rgb_anon/val'
+DATA_DIRECTORY = '../scratch/data/dark_zurich_val/rgb_anon/val' 
 DATA_LIST_PATH = './dataset/lists/zurich_val.txt'
 
 # test set path
@@ -13,9 +13,9 @@ NUM_CLASSES = 19
 SET = 'val'
 
 MODEL = 'PSPNet'
-RESTORE_FROM = './trained_models/dannet_psp.pth'
-RESTORE_FROM_LIGHT = './trained_models/dannet_psp_light.pth'
-SAVE_PATH = './result/dannet_'+MODEL
+RESTORE_FROM = '../scratch/saved_models/DANNet/dannet_psp.pth'
+RESTORE_FROM_LIGHT = '../scratch/saved_models/DANNet/dannet_psp_light.pth'
+SAVE_PATH = '../scratch/saved_models/DANNet/'+ MODEL
 STD = 0.16
 
 
