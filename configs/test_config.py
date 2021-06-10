@@ -1,8 +1,8 @@
 import argparse
 
 # validation set path
-DATA_DIRECTORY = '../scratch/data/dark_zurich_val/rgb_anon/val' 
-DATA_LIST_PATH = './dataset/lists/zurich_val.txt'
+DATA_DIRECTORY = '../scratch/data/'  #chg
+DATA_LIST_PATH = './dataset/lists/acdc_trainrgb.txt'
 
 # test set path
 # DATA_DIRECTORY = '/path/to/public_data_2/rgb_anon'
@@ -15,7 +15,8 @@ SET = 'val'
 MODEL = 'PSPNet'
 RESTORE_FROM = '../scratch/saved_models/DANNet/dannet_psp.pth'
 RESTORE_FROM_LIGHT = '../scratch/saved_models/DANNet/dannet_psp_light.pth'
-SAVE_PATH = '../scratch/saved_models/DANNet/'+ MODEL
+save_path = 'acdc/train_pred'
+SAVE_PATH = '../scratch/saved_models/DANNet/'+ save_path  #chg
 STD = 0.16
 
 
