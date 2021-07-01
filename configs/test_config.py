@@ -1,8 +1,8 @@
 import argparse
 
 # validation set path
-DATA_DIRECTORY = '../scratch/data/'  #chg
-DATA_LIST_PATH = './dataset/lists/acdc_trainrgb.txt'
+DATA_DIRECTORY = '../scratch/data/dark_zurich_val/rgb_anon/val/'  #chg
+DATA_LIST_PATH = './dataset/lists/zurich_val.txt'
 
 # test set path
 # DATA_DIRECTORY = '/path/to/public_data_2/rgb_anon'

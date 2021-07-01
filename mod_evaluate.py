@@ -35,6 +35,13 @@ def prob_2_entropy(prob):
     c, h, w = prob.size()
     return -torch.mul(prob, torch.log2(prob + 1e-30)) / np.log2(c)
 
+def prob_2_vr(prob):
+    """ convert probabilistic prediction maps to weighted self-information maps
+    """
+    c, h, w = prob.size()
+    # print(prob.shape)
+    return 1 - torch.max(prob, dim=0)[0]
+
 def main():
     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
     device = torch.device("cuda")
@@ -101,25 +108,39 @@ def main():
         # print(output) # negative numbers are coming due to which the 'nan' is frequently is obeserved....while calculating entropy
         # print(output.shape) #(19, 1080, 1920)
         
+        ############entropy###############
+        # entropy = prob_2_entropy(F.softmax(output, dim = 0))  
+        # # print(entropy)
+        # # print(entropy.shape)  # torch.Size([19, 1080, 1920])
+        # # print('************') 
+        # entropy_map = torch.sum(entropy, dim = 0) 
+        # # print(entropy_map)
+        # # print(entropy_map.shape) # torch.Size([1080, 1920])
+        # # entropy_map[entropy_map>=0.5] = 1
+        # # entropy_map[entropy_map<0.5] = 0
+        # entropy_map_arr = np.asarray(entropy_map*255, dtype = np.uint8)   
+        # # print(entropy_map_arr)
+        # entropy_map_img= Image.fromarray(entropy_map_arr).convert('L')
+        # # print(name)
+        # nm = name[0].split('/')[-1]
+        # filename = '../scratch/saved_models/DANNet/dz_val/seg_entropy_map/'+ nm
+        # entropy_map_img.save(filename) 
+        # # vutils.save_image(entropy_map, filename)  
+        ############entropy##################
 
-        entropy = prob_2_entropy(F.softmax(output, dim = 0))  
-        # print(entropy)
-        # print(entropy.shape)  # torch.Size([19, 1080, 1920])
-        # print('************') 
-        entropy_map = torch.sum(entropy, dim = 0) 
-        # print(entropy_map)
-        # print(entropy_map.shape) # torch.Size([1080, 1920])
-        entropy_map[entropy_map>=0.5] = 1
-        entropy_map[entropy_map<0.5] = 0
-        entropy_map_arr = np.asarray(entropy_map*255, dtype = np.uint8)   
-        # print(entropy_map_arr)
-        entropy_map_img= Image.fromarray(entropy_map_arr).convert('L')
-        # print(name)
+
+        ###########variation_Ratio###########
+        vrmap = prob_2_vr(F.softmax(output, dim=0))
+        vrmap_arr = np.asarray(vrmap*255, dtype = np.uint8)
+        # add on
+        vrmap_arr[vrmap_arr>=127] = 255
+        vrmap_arr[vrmap_arr<127] = 0
+        # over    
+        vrmap_img = Image.fromarray(vrmap_arr).convert('L')
         nm = name[0].split('/')[-1]
-        filename = '../scratch/saved_models/DANNet/dz_val/seg_entropy_map/'+ nm
-        entropy_map_img.save(filename) 
-        # vutils.save_image(entropy_map, filename)  
-
+        filename = '../scratch/saved_models/DANNet/dz_val/seg_variation_map_bincd/'+ nm
+        vrmap_img.save(filename) 
+        ###########variation_Ratio###########
 
         # output = output.transpose(1,2,0)
         # output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8) 
