@@ -1,5 +1,6 @@
 import torch.nn as nn
 affine_par = True
+from torchsummary import summary
 
 
 def conv3x3(in_planes, out_planes, stride=1):
@@ -97,6 +98,9 @@ class Classifier_Module(nn.Module):
 
     def forward(self, x):
         out = self.conv2d_list[0](x)
+        # print(len(self.conv2d_list)) #4 
+        # print(self.conv2d_list)
+        # print('*********')
         for i in range(len(self.conv2d_list) - 1):
             out += self.conv2d_list[i + 1](x)
             return out
@@ -107,7 +111,7 @@ class ResNetMulti(nn.Module):
         self.inplanes = 64
         super(ResNetMulti, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
-                               bias=False)
+                               bias=False) # / 2 
         self.bn1 = nn.BatchNorm2d(64, affine=affine_par)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1, ceil_mode=True)  # change
@@ -121,12 +125,18 @@ class ResNetMulti(nn.Module):
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
         downsample = None
+        # print(self.inplanes != planes * block.expansion) ## True in each 
+        # print('***************')
         if stride != 1 or self.inplanes != planes * block.expansion or dilation == 2 or dilation == 4:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
                           kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(planes * block.expansion, affine=affine_par))
+        # print(downsample._modules) # ordered dict having conv2d as well...
+        # print('***************')
         for i in downsample._modules['1'].parameters():
+            # print(i)  # conv2d ..and batch norm 
+            # print('*************')
             i.requires_grad = False
         layers = []
         layers.append(block(self.inplanes, planes, stride, dilation=dilation, downsample=downsample))
@@ -159,3 +169,7 @@ class ResNetMulti(nn.Module):
 def Deeplab(num_classes=21):
     model = ResNetMulti(Bottleneck, [3, 4, 23, 3], num_classes)
     return model
+
+model = ResNetMulti(Bottleneck, [3, 4, 23, 3], 19).cuda()
+summary(model, (3, 540, 960)) # dark zurich 
+# summary(model, (3,512,512)) # for cityscapes 

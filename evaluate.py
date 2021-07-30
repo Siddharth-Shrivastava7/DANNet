@@ -27,7 +27,7 @@ def colorize_mask(mask):
 
 
 def main():
-    os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     device = torch.device("cuda")
 
 
@@ -88,7 +88,30 @@ def main():
         output = interp(output2).cpu().data[0].numpy()
 
         output = output.transpose(1,2,0)
-        output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8)
+        # print(output.shape) # (1080, 1920, 19) 
+        # ########### incorporating the real fake segmentations
+        rf_path = '/home/sidd_s/scratch/data_hpc/data/dark_zurich_val/gt/gt_rf_uncertainty' # gt of RFsss
+        # rf_path = '/home/sidd_s/scratch/data/pred_dannet_rf/unet_foc_aug_resize_rf'
+        name_rf = name[0].split('/')[-1].replace('rgb_anon', 'gt_labelColor') # gt of RFsss
+        # name_rf = name[0].split('/')[-1].replace('rgb_anon', 'rgb_anon_color')  
+        rf = np.array(Image.open(os.path.join(rf_path, name_rf))) 
+        fake_pos = np.argwhere(rf==255)  ## single channel 
+        # fake_pos = np.argwhere(np.all(rf == (255,255,255), axis=-1)) #3 channel rf image
+        # print(fake_pos.shape) # (194837, 2)
+
+        L = np.argsort(output, axis=2)  
+        output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8) 
+        output2 = np.asarray(L[:,:,-2], dtype=np.uint8) 
+        # print(output1.shape) # (1080, 1920)
+        # print(output2.shape) # (1080, 1920)
+        # print(np.argsort(output).shape) # (1080, 1920, 19)
+        # print(L[:,:,-1].shape) # (1080, 1920)
+        # print(output1 == L[:,:,-1]) # True
+        output[fake_pos[:,0], fake_pos[:,1]] = output2[fake_pos[:,0], fake_pos[:,1]]  ## for fake pixels togging the prediction class 
+        ########### incorporating the real fake segmentations
+
+        # print(output.shape) #(1080, 1920) 
+        # output = np.asarray(np.argmax(output, axis=2), dtype=np.uint8) ######original 
 
         output_col = colorize_mask(output)
         output = Image.fromarray(output)
